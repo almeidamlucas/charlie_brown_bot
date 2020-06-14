@@ -32,3 +32,16 @@ const botInit = () => {
 }
 
 setInterval(botInit, 20520000); //Chama a função de postar o tweet em um intervalo de tempo determinado
+
+const stream = Bot.stream('statuses/filter', { track: 'charlie brown' }) //Variavel para fazer o bot ouvir o evento de pessoas tweetando 'charlie brown'
+
+//listener que ao detectar um tweet com as palavras charlie brown, dá um like no tweet ouvido
+stream.on('tweet', tweet => { 
+    Bot.post('favorites/create', {id: tweet.id_str}, (err, data, response) => {
+        console.log(data) //Dados sobre o tweet curtido
+
+        if (err) {
+            console.log(err) //Se ocorrer algum erro ao tentar favoritar o tweet, exiba o erro no console
+        }
+    })
+})
