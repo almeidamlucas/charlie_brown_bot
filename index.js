@@ -1,47 +1,38 @@
 require('dotenv').config();
 const Twit = require('twit');
-const frase = require('./frases')      //Importa o array de frases do outro arquivo
+const frases = require('./frases');     
 
-//credenciais do twitter dev
-const Bot = new Twit({
+const twit = new Twit({
     consumer_key: process.env.CONSUMER_KEY,
     consumer_secret: process.env.CONSUMER_SECRET, 
     access_token: process.env.ACCESS_TOKEN,
     access_token_secret: process.env.ACCESS_TOKEN_SECRET,
     timeout_ms: 60 * 1000,
-})
+});
 
-console.log('Bot iniciado')  //Log para ver que codigo foi iniciado
+const postTweet = () => {
+    const randomNumber = Math.floor(Math.random() * frases.length);
 
-//Função que faz o bot funcionar
-const botInit = () => {
-    const randomNumber = Math.floor(Math.random() * frase.length)       //Gera um numero aleatorio entre 0 e o tamanho do array de frases
-
-    Bot.post('statuses/update',
-        {
-            status: frase[randomNumber]    //Posta uma frase do array de frases baseado no índice do número aleatorio gerado
-        },
-        function (err, data, response) {
-            console.log(data)  //Dados sobre o tweet
+    twit.post('statuses/update', { status: frases[randomNumber] }, function (err, data) {
+            console.log(data)  
 
             if (err) {
-                console.log(err)  //Se der algum erro ao postar, exiba o erro no console
+                console.log(err)  
             }
         }
     );
 }
 
-setInterval(botInit, 20520000); //Chama a função de postar o tweet em um intervalo de tempo determinado
+setInterval(postTweet, 20520000); 
 
-const stream = Bot.stream('statuses/filter', { track: 'charlie brown' }) //Variavel para fazer o bot ouvir o evento de pessoas tweetando 'charlie brown'
+const stream = twit.stream('statuses/filter', { track: 'bolsonaro' }) 
 
-//listener que ao detectar um tweet com as palavras charlie brown, dá um like no tweet ouvido
 stream.on('tweet', tweet => { 
-    Bot.post('favorites/create', {id: tweet.id_str}, (err, data, response) => {
-        console.log(data) //Dados sobre o tweet curtido
+    twit.post('favorites/create', {id: tweet.id_str}, (err, data) => {
+        console.log(data) 
 
         if (err) {
-            console.log(err) //Se ocorrer algum erro ao tentar favoritar o tweet, exiba o erro no console
+            console.log(err) 
         }
     })
 })
